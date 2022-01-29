@@ -6,13 +6,17 @@ const cleanCSS = require("gulp-clean-css");
 const uglify = require("gulp-uglify-es").default; //   ЗАМЕНИТЬ НА  Terser    Uglify - не поддерживается больше
 const del = require("del"); //    покурить Асинхронное применение чтобы не ругалось
 const browserSync = require('browser-sync').create();
+const sass = require('gulp-sass')(require('sass'));
+const rename = require('gulp-rename');
+
 
 const BsServer =  function() {
   browserSync.init({
       server: {
           baseDir: "./"
-      }
-      // ,cleport:65133
+      },
+          tunnel:true
+      // .port:65133
   });
 };
 
@@ -26,6 +30,7 @@ function script() {
   return gulp
     .src("./src/js/**/*.js")
     .pipe(concat("script.js"))
+    .pipe(rename({suffix: '.min'}))
     .pipe(
       uglify({
         toplevel: true,
@@ -38,8 +43,10 @@ function script() {
 //                              уточнить как выставить последовательность в SAAS    + include path
 function styles() {
   return gulp
-    .src("./src/styles/**/*.*")
+    .src("./src/styles/**/*.scss")
+    .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
     .pipe(concat("style.css"))
+    .pipe(rename({suffix: '.min'}))
     .pipe(
       autoprefixer({
         overrideBrowserslist: [">0.1%"], //   прочекать на ФайлБраузеров
@@ -70,7 +77,8 @@ function watcher() {
 BsServer();
 
 //.on('change', browserSync.reload)
-  watch("./src/styles/**/*.*", styles);
+  watch("./src/styles/**/*.scss", styles); 
+  // watch("./src/styles/**/*.scss", ['sass']);
   watch("./src/js/**/*.js", script);
   watch("./**/*.html").on('change', browserSync.reload);
 }
