@@ -1,0 +1,9 @@
+.article {
+    font-size: 22px;
+    font-weight: bold;
+  }
+
+
+div.row {
+    display: flex;
+}
